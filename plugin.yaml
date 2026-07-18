@@ -1,0 +1,8 @@
+name: terminal-face
+version: "1.0.0"
+description: |
+  Ghostty custom-shader "terminal face" integration for Hermes.
+  Mirrors the agent's working state (thinking / working / done / err) to the
+  terminal cursor color via OSC 12, so the bundled claude-terminal-face-status
+  GLSL shader can animate a face on the terminal background.
+  CLI/TUI sessions only — gateway platforms have no controlling TTY.
