@@ -27,6 +27,9 @@
  *   - Writes go to the controlling TTY (`/dev/tty`), never stdout, so piped or
  *     JSON/print/RPC runs cannot pollute their output stream.
  *   - TUI only: the shader only exists where a Ghostty window is attached.
+ *   - Pi must show the hardware cursor (`showHardwareCursor` / PI_HARDWARE_CURSOR):
+ *     Ghostty only refreshes the shader's cursor-color uniform while the
+ *     viewport has a cursor glyph, and pi hides it by default.
  *   - Nested tool calls (codemode scripts calling tools) are ignored; the
  *     parent tool already owns the state.
  *
@@ -35,7 +38,7 @@
  */
 
 import fs from "node:fs";
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 // --- State palette (must match the GLSL shader's keys exactly) --------------
 const IDLE = "5ce0c9";
@@ -132,6 +135,34 @@ export function planRamp(from: string | null | undefined, to: string): string[] 
 export interface TerminalFaceOptions {
 	/** Ramp step spacing. Overridden in tests; production uses RAMP_STEP_MS. */
 	stepMs?: number;
+}
+
+/** Notify once per process, not once per session. */
+let warnedHardwareCursor = false;
+
+/**
+ * Ghostty only refreshes the shader's cursor-color uniform while the viewport
+ * has a cursor glyph, i.e. while the hardware cursor is visible. Pi hides the
+ * hardware cursor by default, which freezes `iCurrentCursorColor` and makes the
+ * face ignore every state change. Warn when that prerequisite is missing.
+ */
+function warnAboutHardwareCursor(pi: ExtensionAPI, ctx: ExtensionContext): void {
+	if (ctx.mode !== "tui" || warnedHardwareCursor) return;
+
+	let configured: boolean | undefined;
+	try {
+		configured = pi.getSettings().showHardwareCursor;
+	} catch {
+		return;
+	}
+	const enabled = configured ?? process.env.PI_HARDWARE_CURSOR === "1";
+	if (enabled) return;
+
+	warnedHardwareCursor = true;
+	ctx.ui.notify(
+		'terminal-face: set "showHardwareCursor": true in settings.json (or PI_HARDWARE_CURSOR=1) and restart pi — the shader only sees state changes while the hardware cursor is visible.',
+		"warning",
+	);
 }
 
 export default function terminalFace(pi: ExtensionAPI, options: TerminalFaceOptions = {}): void {
@@ -272,6 +303,7 @@ export default function terminalFace(pi: ExtensionAPI, options: TerminalFaceOpti
 		resetRunState();
 		resumeState = null;
 		settle(IDLE);
+		warnAboutHardwareCursor(pi, ctx);
 	});
 
 	pi.on("input", () => rampTo(toolState()));
