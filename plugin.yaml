@@ -1,5 +1,5 @@
 name: terminal-face
-version: "1.1.0"
+version: "1.2.0"
 description: |
   Ghostty custom-shader "terminal face" integration for Hermes.
   Mirrors the agent's working state (idle / thinking / working / done / err)

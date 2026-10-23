@@ -1,0 +1,6 @@
+{
+  "name": "terminal-face",
+  "displayName": "Terminal Face",
+  "description": "Mirrors the agent's working state to the terminal cursor color (OSC 12) for the claude-terminal-face Ghostty shader.",
+  "version": "1.2.0"
+}
