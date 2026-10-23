@@ -234,3 +234,47 @@ test("lifecycle events drive the cursor color", async () => {
 		fs.rmSync(path.dirname(tty), { recursive: true, force: true });
 	}
 });
+
+test("warns once when pi hides the hardware cursor", async () => {
+	const tty = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "terminal-face-")), "tty");
+	fs.writeFileSync(tty, "");
+	process.env.TERMINAL_FACE_TTY = tty;
+
+	try {
+		const makeHarness = (settings: { showHardwareCursor?: boolean }) => {
+			const notifications: string[] = [];
+			const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
+			const pi = {
+				getAllTools: () => [],
+				getSettings: () => settings,
+				on: (event: string, handler: (event: unknown, ctx: unknown) => unknown) => {
+					handlers.set(event, [...(handlers.get(event) ?? []), handler]);
+					return () => {};
+				},
+			};
+			const ctx = { mode: "tui", ui: { notify: (message: string) => notifications.push(message) } };
+			terminalFace(pi as never, { stepMs: 1 });
+			return {
+				notifications,
+				dispatch: async (event: string) => {
+					for (const handler of handlers.get(event) ?? []) {
+						await handler({ type: event }, ctx);
+					}
+				},
+			};
+		};
+
+		const enabled = makeHarness({ showHardwareCursor: true });
+		await enabled.dispatch("session_start");
+		assert.deepEqual(enabled.notifications, [], "no warning when the cursor is visible");
+
+		const missing = makeHarness({});
+		await missing.dispatch("session_start");
+		await missing.dispatch("session_start");
+		assert.equal(missing.notifications.length, 1, "warn exactly once");
+		assert.match(missing.notifications[0], /showHardwareCursor/);
+	} finally {
+		delete process.env.TERMINAL_FACE_TTY;
+		fs.rmSync(path.dirname(tty), { recursive: true, force: true });
+	}
+});

@@ -94,7 +94,16 @@ pi install git:github.com/sashimi3433/hermes-terminal-face
 pi --extension /path/to/hermes-terminal-face
 ```
 
-`package.json` declares the extension under the `pi` key, so Ctrl-C/reload picks it up on the next session. The extension lives in `extensions/terminal-face.ts`.
+`package.json` declares the extension under the `pi` key, so the next session picks it up. The extension lives in `extensions/terminal-face.ts`.
+
+Then make pi show the hardware cursor. Ghostty only refreshes the shader's cursor-color uniform while the viewport has a cursor glyph, and pi hides the hardware cursor by default, so the face would never react:
+
+```jsonc
+// ~/.pi/agent/settings.json
+"showHardwareCursor": true
+```
+
+or export `PI_HARDWARE_CURSOR=1` before starting pi. The extension shows a one-time warning when this is missing. The visible caret simply takes the current state color.
 
 **Hermes** — clone into the plugins directory and enable it:
 
@@ -114,6 +123,7 @@ Start a new session (`/new`, `/reset`, or restart) and the face appears on the t
 
 ## Troubleshooting
 
+- **Pi: the face never changes.** Pi hides the hardware cursor by default and Ghostty only updates the shader's cursor-color uniform while a cursor glyph exists. Set `"showHardwareCursor": true` in `~/.pi/agent/settings.json` (or `export PI_HARDWARE_CURSOR=1`) and restart pi. The extension warns once per process when this is missing.
 - **Override the write target.** Both implementations write to the controlling TTY (`/dev/tty`). If that is not the terminal you are looking at (unusual wrappers, custom harnesses), pin it:
   - Pi: `export TERMINAL_FACE_TTY=/dev/ttys011`
   - Hermes: `export HERMES_FACE_TTY=/dev/ttys011` (or `TERMINAL_FACE_TTY`)
