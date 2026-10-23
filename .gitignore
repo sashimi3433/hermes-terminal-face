@@ -3,6 +3,9 @@
 __pycache__/
 *.pyc
 
+# Node (Pi package tooling)
+node_modules/
+
 # Editor
 .vscode/
 .idea/
