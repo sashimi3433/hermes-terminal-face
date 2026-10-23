@@ -1,7 +1,7 @@
 {
   "name": "hermes-terminal-face",
-  "version": "1.1.0",
-  "description": "Ghostty custom-shader terminal face for Hermes Agent and Pi — mirrors the agent's working state to the OSC 12 cursor color.",
+  "version": "1.2.0",
+  "description": "Ghostty custom-shader terminal face for Hermes Agent, Pi, Grok Build and Antigravity CLI \u2014 mirrors the agent's working state to the OSC 12 cursor color.",
   "license": "MIT",
   "type": "module",
   "repository": {
@@ -21,7 +21,8 @@
     ]
   },
   "scripts": {
-    "test": "node --test test/terminal-face.test.ts"
+    "test": "node --test test/terminal-face.test.ts",
+    "test:hooks": "python3 -m unittest discover -s test -p 'test_*.py'"
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*"

@@ -1,0 +1,50 @@
+{
+  "terminal-face": {
+    "enabled": true,
+    "SessionStart": [
+      {
+        "command": "./terminal-face-hook.py --source agy --event reset",
+        "type": "command",
+        "timeout": 10
+      }
+    ],
+    "PreInvocation": [
+      {
+        "command": "./terminal-face-hook.py --source agy --event thinking",
+        "type": "command",
+        "timeout": 10
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "command": "./terminal-face-hook.py --source agy --event pre-tool",
+            "type": "command",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "command": "./terminal-face-hook.py --source agy --event post-tool",
+            "type": "command",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "command": "./terminal-face-hook.py --source agy --event done",
+        "type": "command",
+        "timeout": 10
+      }
+    ]
+  }
+}
