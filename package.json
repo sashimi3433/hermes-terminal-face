@@ -1,0 +1,29 @@
+{
+  "name": "hermes-terminal-face",
+  "version": "1.1.0",
+  "description": "Ghostty custom-shader terminal face for Hermes Agent and Pi — mirrors the agent's working state to the OSC 12 cursor color.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sashimi3433/hermes-terminal-face.git"
+  },
+  "keywords": [
+    "pi-package",
+    "ghostty",
+    "terminal",
+    "shader",
+    "hermes-agent"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/terminal-face.ts"
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/terminal-face.test.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
